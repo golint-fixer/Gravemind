@@ -34,6 +34,7 @@ deploy:
     bucket: tyrantbot
     key: build.tgz
     bundle_type: tgz
+    region: us-west-2
     application: TyrantBot
     deployment_group: Production
     on: *2
