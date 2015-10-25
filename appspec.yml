@@ -1,0 +1,16 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /var/tyrant-bot
+permissions:
+  - object: /var/tyrant-bot
+    pattern: bot
+    mode: 755
+hooks:
+  ApplicationStop:
+    - location: scripts/start.sh
+      timeout: 60
+  ApplicationStart:
+    - location: scripts/stop.sh
+      timeout: 60
