@@ -14,7 +14,8 @@ script:
 before_deploy:
   - cp appspec.yml build/appspec.yml
   - mkdir -p deploy
-  - tar -zcvf deploy/build_`date -u +%Y-%m-%d_%H:%M:%S`.tgz build/*
+  - BUILD_TAR="build_`date -u +%Y-%m-%d_%H:%M:%S`.tgz"
+  - tar -zcvf deploy/$BUILD_TAR build/*
 
 deploy:
   - provider: s3
@@ -31,7 +32,7 @@ deploy:
     access_key_id: AKIAJFXWRN7XUSXYHERA
     secret_access_key: *1
     bucket: tyrantbot
-    key: build.tgz
+    key: $BUILD_TAR
     bundle_type: tgz
     region: us-west-2
     application: TyrantBot
