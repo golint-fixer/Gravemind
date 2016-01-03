@@ -5,17 +5,16 @@ import (
 	"fmt"
 
 	"github.com/donovanhide/eventsource"
-	"github.com/fugiman/tyrantbot/pkg/message"
 )
 
 type Ingest interface {
-	Messages() <-chan *message.Message
+	Messages() <-chan *Message
 	Errors() <-chan error
 }
 
 type firehoseIngest struct {
 	es     *eventsource.Stream
-	output chan *message.Message
+	output chan *Message
 	errors chan error
 }
 
@@ -28,14 +27,14 @@ func NewFirehoseIngest(login string, token string) (Ingest, error) {
 
 	f := &firehoseIngest{
 		es:     s,
-		output: make(chan *message.Message, 1024),
+		output: make(chan *Message, 1024),
 		errors: make(chan error, 1024),
 	}
 	f.run()
 	return f, nil
 }
 
-func (f *firehoseIngest) Messages() <-chan *message.Message {
+func (f *firehoseIngest) Messages() <-chan *Message {
 	return f.output
 }
 
@@ -48,7 +47,7 @@ func (f *firehoseIngest) run() {
 		for e := range f.es.Events {
 			switch e.Event() {
 			case "privmsg":
-				m := &message.Message{}
+				m := &Message{}
 				err := json.Unmarshal([]byte(e.Data()), m)
 				if err == nil {
 					m.ParseTags()

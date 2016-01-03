@@ -1,6 +1,10 @@
-package message
+package main
 
-import "fmt"
+import (
+	"bytes"
+	"fmt"
+	"html/template"
+)
 
 type MessagePartType int
 
@@ -10,9 +14,20 @@ const (
 	URL
 )
 
+type MessageParts []MessagePart
+
+func (m MessageParts) HTML() template.HTML {
+	var buf bytes.Buffer
+	for _, p := range m {
+		buf.WriteString(string(p.HTML()))
+	}
+	return template.HTML(buf.String())
+}
+
 type MessagePart interface {
 	Type() MessagePartType
 	String() string
+	HTML() template.HTML
 }
 
 type MessagePartString struct {
@@ -24,6 +39,9 @@ func (mp MessagePartString) Type() MessagePartType {
 }
 func (mp MessagePartString) String() string {
 	return mp.content
+}
+func (mp MessagePartString) HTML() template.HTML {
+	return template.HTML(template.HTMLEscapeString(mp.content))
 }
 
 type MessagePartEmote struct {
@@ -37,8 +55,11 @@ func (mp MessagePartEmote) Type() MessagePartType {
 func (mp MessagePartEmote) String() string {
 	return mp.content
 }
-func (mp MessagePartEmote) Url() string {
+func (mp MessagePartEmote) URL() string {
 	return fmt.Sprintf("http://static-cdn.jtvnw.net/emoticons/v1/%d/3.0", mp.emote)
+}
+func (mp MessagePartEmote) HTML() template.HTML {
+	return template.HTML(fmt.Sprintf(`<img src="%s">`, mp.URL()))
 }
 
 type MessagePartUrl struct {
@@ -53,6 +74,9 @@ func (mp MessagePartUrl) String() string {
 }
 func (mp MessagePartUrl) URL() string {
 	return "?????????" // TODO
+}
+func (mp MessagePartUrl) HTML() template.HTML {
+	return template.HTML(fmt.Sprintf(`<a href="%s">%s</a>`, mp.URL(), mp.content))
 }
 
 type emote struct {

@@ -1,4 +1,4 @@
-package message
+package main
 
 import (
 	"sort"
@@ -11,7 +11,7 @@ import (
 type Message struct {
 	Room         string `json:"room"`
 	RawContent   string `json:"body"`
-	Content      []MessagePart
+	Content      MessageParts
 	Login        string `json:"nick"`
 	Username     string
 	UserId       int

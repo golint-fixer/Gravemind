@@ -8,51 +8,59 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/donovanhide/eventsource"
-	"github.com/fugiman/tyrantbot/pkg/message"
 )
 
-type MessageEvent struct {
+type Event struct {
 	id   string
 	data string
 }
 
-func (m *MessageEvent) Id() string    { return m.id }
-func (m *MessageEvent) Event() string { return "" }
-func (m *MessageEvent) Data() string  { return m.data }
-
-func NewMessageEvent(m *message.Message) *MessageEvent {
-	return &MessageEvent{
-		id:   fmt.Sprint(time.Now().UnixNano()),
-		data: fmt.Sprint(m),
-	}
-}
+func (m *Event) Id() string    { return m.id }
+func (m *Event) Event() string { return "" }
+func (m *Event) Data() string  { return m.data }
 
 func main() {
-	s := eventsource.NewServer()
-	defer s.Close()
-
-	f, err := NewFirehoseIngest("tyrantbot", "")
+	// Create the ingest
+	ingest, err := NewFirehoseIngest("tyrantbot", os.Getenv("TOKEN"))
 	if err != nil {
 		log.Fatal("NewFirehoseIngest: ", err)
 	}
-
 	go func() {
-		for m := range f.Messages() {
-			s.Publish([]string{"messages"}, NewMessageEvent(m))
-		}
-	}()
-	go func() {
-		for e := range f.Errors() {
+		for e := range ingest.Errors() {
 			log.Println(e)
 		}
 	}()
 
+	// Create the outgest
+	s := eventsource.NewServer()
+	defer s.Close()
 	http.HandleFunc("/", s.Handler("messages"))
-	err = http.ListenAndServe(":8000", nil)
+	go func() {
+		err = http.ListenAndServe(":8000", nil)
+		if err != nil {
+			log.Fatal("ListenAndServe: ", err)
+		}
+	}()
+
+	send := func(channel string, message string) {
+		s.Publish([]string{"messages"}, &Event{
+			id:   fmt.Sprint(time.Now().UnixNano()),
+			data: fmt.Sprintf("<%s> %s", channel, message),
+		})
+	}
+
+	// Create the brain
+	brain, err := NewBrain(ingest.Messages(), send)
 	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
+		log.Fatal("NewBrain: ", err)
+	}
+
+	// And... go
+	for err := range brain.Run() {
+		log.Println(err)
 	}
 }
