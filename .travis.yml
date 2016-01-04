@@ -12,6 +12,8 @@ script:
   - go build -tags 'netgo' -o build/bot ./bot/...
 
 before_deploy:
+  - openssl aes-256-cbc -K $encrypted_3a1c9699d5be_key -iv $encrypted_3a1c9699d5be_iv -in config.json.enc -out config.json -d
+  - cp config.json build/config.json
   - cp appspec.yml build/appspec.yml
   - cp -R scripts build/scripts
   - mkdir -p deploy

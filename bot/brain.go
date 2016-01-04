@@ -43,7 +43,7 @@ func (b *brain) Run() <-chan error {
 	errs := make(chan error, 1000)
 	go func() {
 		for m := range b.in {
-			bot := username
+			bot := config.Username
 			if b, ok := bots[m.Room]; ok {
 				bot = b
 			}

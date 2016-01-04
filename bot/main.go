@@ -5,16 +5,32 @@ package main
 // - Actually set Message.IsAction and strip \x01ACTION
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"log"
-	"os"
 )
 
-var username = "tyrantbot"
-var token = os.Getenv("TOKEN")
+type Config struct {
+	Username string `json:"username"`
+	Token    string `json:"token"`
+}
+
+var config Config
+
+func init() {
+	data, err := ioutil.ReadFile("config.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = json.Unmarshal(data, &config)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
 
 func main() {
 	// Create the ingest
-	ingest, err := NewFirehoseIngest(username, token)
+	ingest, err := NewFirehoseIngest(config.Username, config.Token)
 	if err != nil {
 		log.Fatal("NewFirehoseIngest: ", err)
 	}
@@ -26,7 +42,7 @@ func main() {
 
 	// Create the outgest
 	outgest := NewOutgest()
-	outgest.Connect(username, token)
+	outgest.Connect(config.Username, config.Token)
 
 	// Create the brain
 	brain, err := NewBrain(ingest.Messages(), outgest.Send)
