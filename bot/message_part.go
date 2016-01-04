@@ -19,7 +19,8 @@ type MessageParts []MessagePart
 func (m MessageParts) String() string {
 	var buf bytes.Buffer
 	for _, p := range m {
-		buf.WriteString(p.String())
+		_, err := buf.WriteString(p.String())
+		logErr(err)
 	}
 	return buf.String()
 }
@@ -27,7 +28,8 @@ func (m MessageParts) String() string {
 func (m MessageParts) HTML() template.HTML {
 	var buf bytes.Buffer
 	for _, p := range m {
-		buf.WriteString(string(p.HTML()))
+		_, err := buf.WriteString(string(p.HTML()))
+		logErr(err)
 	}
 	return template.HTML(buf.String())
 }

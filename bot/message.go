@@ -65,11 +65,13 @@ func (m *Message) ParseTags() {
 		val = string(v[0:j])
 
 		// Utilize the data
+		var err error
 		switch key {
 		case "display-name":
 			m.Username = val
 		case "user-id":
-			m.UserId, _ = strconv.Atoi(val)
+			m.UserId, err = strconv.Atoi(val)
+			logErr(err)
 		case "user-type":
 			m.UserType = val
 		case "turbo":
@@ -82,11 +84,14 @@ func (m *Message) ParseTags() {
 			if val != "" {
 				for _, emote_data := range strings.Split(val, "/") {
 					parts := strings.Split(emote_data, ":")
-					id, _ := strconv.Atoi(parts[0])
+					id, err := strconv.Atoi(parts[0])
+					logErr(err)
 					for _, point := range strings.Split(parts[1], ",") {
 						p := strings.Split(point, "-")
-						start, _ := strconv.Atoi(p[0])
-						end, _ := strconv.Atoi(p[1])
+						start, err := strconv.Atoi(p[0])
+						logErr(err)
+						end, err := strconv.Atoi(p[1])
+						logErr(err)
 						m.emotes = append(m.emotes, emote{id, start, end + 1})
 					}
 				}

@@ -39,3 +39,9 @@ func main() {
 		log.Println(err)
 	}
 }
+
+func logErr(err error) {
+	if err != nil {
+		log.Println(err)
+	}
+}

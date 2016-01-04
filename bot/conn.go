@@ -19,7 +19,7 @@ func NewConn(username, token string, messages chan string) {
 	if err != nil {
 		return
 	}
-	defer conn.Close()
+	defer func() { logErr(conn.Close()) }()
 
 	// Connect
 	_, err = fmt.Fprintf(conn, "PASS oauth:%s\r\n", token)
@@ -35,7 +35,7 @@ func NewConn(username, token string, messages chan string) {
 	b := make([]byte, 4096)
 	for m := range messages {
 		// Read all pending data to help detect dead connections
-		conn.SetReadDeadline(time.Now().Add(10 * time.Microsecond))
+		logErr(conn.SetReadDeadline(time.Now().Add(10 * time.Microsecond)))
 		for {
 			if _, err := conn.Read(b); err != nil {
 				if err == io.EOF {
