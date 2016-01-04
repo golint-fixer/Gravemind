@@ -25,11 +25,20 @@ type Message struct {
 	emotes emotes
 }
 
+var tagEscaping = map[byte]byte{
+	':':  ';',
+	's':  ' ',
+	'\\': '\\',
+	'r':  '\r',
+	'n':  '\n',
+}
+
 func (m *Message) ParseTags() {
 	m.Username = strings.Title(m.Login)
 	m.Color = "#33CC33"
 
 	for _, tag := range strings.Split(m.Tags, ";") {
+		// Get the data
 		var key, val string
 		i := strings.Index(tag, "=")
 		if i > 0 {
@@ -37,6 +46,25 @@ func (m *Message) ParseTags() {
 		} else {
 			key = tag
 		}
+
+		// Unescape the data
+		j, v := 0, []byte(val)
+		for i := 0; i < len(v); i++ {
+			if v[i] == '\\' {
+				i++
+				c, ok := tagEscaping[v[i]]
+				if !ok {
+					break
+				}
+				v[j] = c
+			} else {
+				v[j] = v[i]
+			}
+			j++
+		}
+		val = string(v[0:j])
+
+		// Utilize the data
 		switch key {
 		case "display-name":
 			m.Username = val
@@ -68,32 +96,38 @@ func (m *Message) ParseTags() {
 }
 
 func (m *Message) ParseMessage() {
-	sort.Sort(m.emotes)
-	urls := xurls.Relaxed.FindAllStringIndex(m.RawContent, -1)
+	content := m.RawContent
+	if len(content) > 8 && content[0:8] == "\x01ACTION " && content[len(content)-1] == '\x01' {
+		content = content[8 : len(content)-1]
+		m.IsAction = true
+	}
 
-	emoticons := append(m.emotes, emote{0, len(m.RawContent), 9999})
-	urls = append(urls, []int{len(m.RawContent), 9999})
+	sort.Sort(m.emotes)
+	urls := xurls.Relaxed.FindAllStringIndex(content, -1)
+
+	emoticons := append(m.emotes, emote{0, len(content), 9999})
+	urls = append(urls, []int{len(content), 9999})
 
 	bodyIndex, emoteIndex, urlIndex := 0, 0, 0
-	for bodyIndex < len(m.RawContent) {
+	for bodyIndex < len(content) {
 		emoticon := emoticons[emoteIndex]
 		url := emote{-1, urls[urlIndex][0], urls[urlIndex][1]}
 
 		// Prefer emotes if there's overlap
 		if emoticon.Start < url.End {
 			if emoticon.Start > bodyIndex {
-				m.Content = append(m.Content, MessagePartString{m.RawContent[bodyIndex:emoticon.Start]})
+				m.Content = append(m.Content, MessagePartString{content[bodyIndex:emoticon.Start]})
 			}
-			if emoticon.End <= len(m.RawContent) {
-				m.Content = append(m.Content, MessagePartEmote{m.RawContent[emoticon.Start:emoticon.End], emoticon.Id})
+			if emoticon.End <= len(content) {
+				m.Content = append(m.Content, MessagePartEmote{content[emoticon.Start:emoticon.End], emoticon.Id})
 			}
 			bodyIndex = emoticon.End
 		} else {
 			if url.Start > bodyIndex {
-				m.Content = append(m.Content, MessagePartString{m.RawContent[bodyIndex:url.Start]})
+				m.Content = append(m.Content, MessagePartString{content[bodyIndex:url.Start]})
 			}
-			if url.End <= len(m.RawContent) {
-				m.Content = append(m.Content, MessagePartUrl{m.RawContent[url.Start:url.End]})
+			if url.End <= len(content) {
+				m.Content = append(m.Content, MessagePartUrl{content[url.Start:url.End]})
 			}
 			bodyIndex = url.End
 		}

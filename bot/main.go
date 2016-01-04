@@ -5,27 +5,16 @@ package main
 // - Actually set Message.IsAction and strip \x01ACTION
 
 import (
-	"fmt"
 	"log"
-	"net/http"
 	"os"
-	"time"
-
-	"github.com/donovanhide/eventsource"
 )
 
-type Event struct {
-	id   string
-	data string
-}
-
-func (m *Event) Id() string    { return m.id }
-func (m *Event) Event() string { return "" }
-func (m *Event) Data() string  { return m.data }
+var username = "tyrantbot"
+var token = os.Getenv("TOKEN")
 
 func main() {
 	// Create the ingest
-	ingest, err := NewFirehoseIngest("tyrantbot", os.Getenv("TOKEN"))
+	ingest, err := NewFirehoseIngest(username, token)
 	if err != nil {
 		log.Fatal("NewFirehoseIngest: ", err)
 	}
@@ -36,25 +25,11 @@ func main() {
 	}()
 
 	// Create the outgest
-	s := eventsource.NewServer()
-	defer s.Close()
-	http.HandleFunc("/", s.Handler("messages"))
-	go func() {
-		err = http.ListenAndServe(":8000", nil)
-		if err != nil {
-			log.Fatal("ListenAndServe: ", err)
-		}
-	}()
-
-	send := func(channel string, message string) {
-		s.Publish([]string{"messages"}, &Event{
-			id:   fmt.Sprint(time.Now().UnixNano()),
-			data: fmt.Sprintf("<%s> %s", channel, message),
-		})
-	}
+	outgest := NewOutgest()
+	outgest.Connect(username, token)
 
 	// Create the brain
-	brain, err := NewBrain(ingest.Messages(), send)
+	brain, err := NewBrain(ingest.Messages(), outgest.Send)
 	if err != nil {
 		log.Fatal("NewBrain: ", err)
 	}

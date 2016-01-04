@@ -16,6 +16,14 @@ const (
 
 type MessageParts []MessagePart
 
+func (m MessageParts) String() string {
+	var buf bytes.Buffer
+	for _, p := range m {
+		buf.WriteString(p.String())
+	}
+	return buf.String()
+}
+
 func (m MessageParts) HTML() template.HTML {
 	var buf bytes.Buffer
 	for _, p := range m {
@@ -60,6 +68,9 @@ func (mp MessagePartEmote) URL() string {
 }
 func (mp MessagePartEmote) HTML() template.HTML {
 	return template.HTML(fmt.Sprintf(`<img src="%s">`, mp.URL()))
+}
+func (mp MessagePartEmote) Emote() int {
+	return mp.emote
 }
 
 type MessagePartUrl struct {

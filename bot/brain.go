@@ -6,20 +6,25 @@ type Brain interface {
 
 type brain struct {
 	in    <-chan *Message
-	out   func(string, string)
+	out   func(string, string, string)
 	rules map[string][]uint64
 	p     *Pool
 }
 
-func NewBrain(in <-chan *Message, out func(string, string)) (Brain, error) {
+var bots = map[string]string{}
+
+func NewBrain(in <-chan *Message, out func(string, string, string)) (Brain, error) {
 	p := NewPool(64)
 
 	id, err := p.Add(`
-    if (msg.UserType == "staff") {
-      say(msg.Username + ': ' + msg.RawContent)
-      reply('' + HTML(msg.Content))
-    }
-  `)
+		if (msg.UserId == 57041412) return;
+		for(i=0;i<msg.Content.length;i++) {
+			if (msg.Content[i].Type() == 0 && msg.Content[i].String().toLowerCase().indexOf("pancake") !== -1) {
+				say('<'+msg.Username+msg.Room+'> '+(msg.IsAction?'/me ':'')+msg.Content.String())
+				return
+			}
+		}
+	`)
 	if err != nil {
 		return nil, err
 	}
@@ -38,11 +43,15 @@ func (b *brain) Run() <-chan error {
 	errs := make(chan error, 1000)
 	go func() {
 		for m := range b.in {
+			bot := username
+			if b, ok := bots[m.Room]; ok {
+				bot = b
+			}
 			say := func(s string) {
-				b.out(m.Room, s)
+				b.out(bot, m.Room, s)
 			}
 			reply := func(s string) {
-				b.out(m.Login, s)
+				b.out(bot, m.Login, s)
 			}
 			run := func(c uint64) {
 				err := b.p.Run(c, m, say, reply)
