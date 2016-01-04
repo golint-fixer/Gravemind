@@ -1,1 +1,1 @@
-kill `cat /var/tyrant-bot/pid`
+kill `cat /var/tyrant-bot/pid` || :
