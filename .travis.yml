@@ -14,8 +14,7 @@ script:
 before_deploy:
   - cp appspec.yml build/appspec.yml
   - mkdir -p deploy
-  - BUILD_TIME=`date -u +%Y-%m-%d_%H:%M:%S`
-  - BUILD_TAR="build_$BUILD_TIME.tgz"
+  - BUILD_TAR="build_$TRAVIS_COMMIT.tgz"
   - tar -zcvC build -f deploy/$BUILD_TAR .
 
 deploy:
@@ -23,19 +22,20 @@ deploy:
     access_key_id: AKIAJFXWRN7XUSXYHERA
     secret_access_key: &1
       secure: 48bfMtfnqWc5loqS7VzXJYvh/XW2GajcK9ywllb+PPjouZSAdfM+pa1mhgCPQz4W73LOeTZs8g6ZMzzVt1gzhtoBKdMMubRZKCmxf8K41CsewdlE09hdP15/zMFDBsks551DTm+tl9hth7C4g10squEb1mvA0HNGGmu2eK3J/m3w2RTzku0rbLcvuNVqJ/TzNKZma+5FJY2o8JmU8NgzqQyXDVdLh3foQHX1D0+u3yBmaexAUaEX7QbfK9jlrwKfo1przYV8aFyV4Tg71qblXu4CDW0nCBIqkiHgYuT7Yl4MG9uOU+UDMXx3ng2J8lR6Cy86HvG1m5d8uhaAEAVb9Ltae1Rufy3EovRzYxHknQ16+b6zmQim7Ocm1xywidpuG1Zx05+fb+zbSUqu2uCYRnt7zTrLh2jPuNoMqh8pnu0GDLATZyPOsf9ejXWu/cK3lHge/sSLAuq7eM1D6P1vP0YqIfCM3oPqD0GKusly1jGPHy8tR8TYbvZEub/lFAh9dRMuxDakCu5iPRtsomlT0cNwmf/+csKY8/EMX2oq8YAm2xNFvZvOtyzSrf80wAB2Nr/InNZ0hMlL8cpWZ6BqFHUjidD5CuqiV5ajLH0Q4MyotQKPHE7uTq3HBsSznZ4eoQVcFj+Y0Hn+OhHJjVj7fJCiF5GjWmagS3WbzP4Dz4Y=
+    region: us-west-2
+    bucket: tyrantbot
     local_dir: deploy
     skip_cleanup: true
     on: &2
       repo: Fugiman/TyrantBot
       branch: master
-    bucket: tyrantbot
   - provider: codedeploy
     access_key_id: AKIAJFXWRN7XUSXYHERA
     secret_access_key: *1
+    region: us-west-2
     bucket: tyrantbot
     key: $BUILD_TAR
     bundle_type: tgz
-    region: us-west-2
     application: TyrantBot
     deployment_group: Production
     on: *2
