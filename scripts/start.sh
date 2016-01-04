@@ -1,2 +1,3 @@
-nohup /var/tyrant-bot/bot > /var/tyrant-bot/log 2>&1 &
-echo $! > /var/tyrant-bot/pid
+cd /var/tyrant-bot
+nohup ./bot > log 2>&1 &
+echo $! > pid
