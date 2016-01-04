@@ -5,7 +5,7 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/robertkrimen/otto"
+	"github.com/fugiman/otto"
 )
 
 type worker struct {
