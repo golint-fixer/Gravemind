@@ -13,6 +13,7 @@ script:
 
 before_deploy:
   - cp appspec.yml build/appspec.yml
+  - cp -R scripts build/scripts
   - mkdir -p deploy
   - BUILD_TAR="build_$TRAVIS_COMMIT.tgz"
   - tar -zcvC build -f deploy/$BUILD_TAR .
