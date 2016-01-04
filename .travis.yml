@@ -14,8 +14,9 @@ script:
 before_deploy:
   - cp appspec.yml build/appspec.yml
   - mkdir -p deploy
-  - BUILD_TAR="build_`date -u +%Y-%m-%d_%H:%M:%S`.tgz"
-  - tar -zcvf deploy/$BUILD_TAR build/*
+  - BUILD_TIME=`date -u +%Y-%m-%d_%H:%M:%S`
+  - BUILD_TAR="build_$BUILD_TIME.tgz"
+  - tar -zcvC build -f deploy/$BUILD_TAR .
 
 deploy:
   - provider: s3
