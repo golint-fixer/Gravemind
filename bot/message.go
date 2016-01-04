@@ -68,7 +68,9 @@ func (m *Message) ParseTags() {
 		var err error
 		switch key {
 		case "display-name":
-			m.Username = val
+			if val != "" {
+				m.Username = val
+			}
 		case "user-id":
 			m.UserId, err = strconv.Atoi(val)
 			logErr(err)
