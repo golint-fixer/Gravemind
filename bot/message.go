@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"sort"
 	"strconv"
 	"strings"
@@ -23,6 +24,19 @@ type Message struct {
 
 	Tags   string `json:"tags"`
 	emotes emotes
+}
+
+func (m *Message) String() string {
+	var buf bytes.Buffer
+	buf.WriteString("<")
+	buf.WriteString(m.Username)
+	buf.WriteString(m.Room)
+	buf.WriteString("> ")
+	if m.IsAction {
+		buf.WriteString("/me ")
+	}
+	buf.WriteString(msg.Content.String())
+	return buf.String()
 }
 
 var tagEscaping = map[byte]byte{

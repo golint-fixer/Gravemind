@@ -17,10 +17,9 @@ func NewBrain(in <-chan *Message, out func(string, string, string)) (Brain, erro
 	p := NewPool(64)
 
 	id, err := p.Add(`
-		if (msg.UserId == 57041412) return;
 		for(i=0;i<msg.Content.length;i++) {
 			if (msg.Content[i].Type() == 0 && msg.Content[i].String().toLowerCase().indexOf("pancake") !== -1) {
-				say('<'+msg.Username+msg.Room+'> '+(msg.IsAction?'/me ':'')+msg.Content.String())
+				say(msg.String())
 				return
 			}
 		}

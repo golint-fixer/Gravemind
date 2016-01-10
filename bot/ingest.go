@@ -52,7 +52,9 @@ func (f *firehoseIngest) run() {
 				if err == nil {
 					m.ParseTags()
 					m.ParseMessage()
-					f.output <- m
+					if m.Login != config.Username {
+						f.output <- m
+					}
 				} else {
 					f.errors <- err
 				}
