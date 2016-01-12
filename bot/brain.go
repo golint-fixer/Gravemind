@@ -25,7 +25,7 @@ type brain struct {
 	sync.RWMutex
 
 	in       <-chan *Message
-	out      func(string, string, string)
+	out      func(string, string) func(string)
 	channels map[string][]uint64
 	codes    map[codeKey]uint64
 	p        *Pool
@@ -35,7 +35,7 @@ type brain struct {
 
 var bots = map[string]string{}
 
-func NewBrain(in <-chan *Message, out func(string, string, string)) (Brain, error) {
+func NewBrain(in <-chan *Message, out func(string, string) func(string)) (Brain, error) {
 	sess := session.New(aws.NewConfig().WithRegion("us-west-2"))
 
 	plugins, err := dynamosync.New(sess, "plugins")
@@ -66,7 +66,6 @@ func (b *brain) Run() <-chan error {
 			errs <- err
 		}
 	}
-	// Load initial plugin data syncronously to avoid races
 	go func() {
 	SeedLoop:
 		for {
@@ -160,13 +159,7 @@ func (b *brain) handleMessage(m *Message, errs chan error) {
 	if b, ok := bots[m.Room]; ok {
 		bot = b
 	}
-	say := func(s string) {
-		b.out(bot, m.Room, s)
-	}
-	reply := func(s string) {
-		b.out(bot, m.Login, s)
-	}
-	run := func(p uint64) {
+	run := func(p uint64, say, reply func(string)) {
 		err := b.p.Run(p, m, say, reply)
 		if err != nil {
 			errs <- err
@@ -176,14 +169,14 @@ func (b *brain) handleMessage(m *Message, errs chan error) {
 	if plugins, ok := b.channels["#"]; ok {
 		for _, p := range plugins {
 			wg.Add(1)
-			go run(p)
+			go run(p, b.out(bot, testRoom), b.out(bot, testRoom))
 		}
 	}
 
 	if plugins, ok := b.channels[m.Room]; ok {
 		for _, p := range plugins {
 			wg.Add(1)
-			go run(p)
+			go run(p, b.out(bot, m.Room), b.out(bot, m.Login))
 		}
 	}
 	b.RUnlock()

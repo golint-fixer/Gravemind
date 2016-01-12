@@ -14,6 +14,8 @@ import (
 	"os/signal"
 )
 
+const testRoom = "#fugitest"
+
 type Config struct {
 	Username string `json:"username"`
 	Token    string `json:"token"`

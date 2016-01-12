@@ -8,14 +8,12 @@ import (
 	"time"
 )
 
-const tmiAddr = "irc.twitch.tv:6667"
-
 // We don't respond to pings so that unused connections die naturally
-func NewConn(username, token string, messages chan string) {
+func NewConn(addr, username, token string, messages chan string) {
 	log.Printf("Connecting to IRC as %q...\n", username)
 	defer log.Printf("Disconnecting from IRC as %q.\n", username)
 
-	conn, err := net.Dial("tcp", tmiAddr)
+	conn, err := net.Dial("tcp", addr)
 	if err != nil {
 		return
 	}
@@ -46,6 +44,7 @@ func NewConn(username, token string, messages chan string) {
 			}
 		}
 		// Try to send it
+		log.Println(m)
 		sent, err := fmt.Fprintf(conn, "%s\r\n", m)
 		// Die if something seemed to go wrong
 		if err != nil || sent != len(m)+2 {
