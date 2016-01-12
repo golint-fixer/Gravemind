@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"sync/atomic"
 	"time"
 )
@@ -54,7 +55,7 @@ func (o *outgest) Send(username, channel, message string) {
 
 	// For debugging
 	channel = "#fugitest"
-	//log.Printf(":%s %s %s :%s", username, action, channel, message)
+	log.Printf(":%s %s %s :%s", username, action, channel, message)
 
 	o.users[username].ch <- fmt.Sprintf("%s %s :%s", action, channel, message)
 }

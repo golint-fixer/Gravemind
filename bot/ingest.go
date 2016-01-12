@@ -10,12 +10,14 @@ import (
 type Ingest interface {
 	Messages() <-chan *Message
 	Errors() <-chan error
+	Stop()
 }
 
 type firehoseIngest struct {
 	es     *eventsource.Stream
 	output chan *Message
 	errors chan error
+	done   chan struct{}
 }
 
 func NewFirehoseIngest(login string, token string) (Ingest, error) {
@@ -29,8 +31,9 @@ func NewFirehoseIngest(login string, token string) (Ingest, error) {
 		es:     s,
 		output: make(chan *Message, 1024),
 		errors: make(chan error, 1024),
+		done:   make(chan struct{}, 1),
 	}
-	f.run()
+	go f.run()
 	return f, nil
 }
 
@@ -42,9 +45,22 @@ func (f *firehoseIngest) Errors() <-chan error {
 	return f.errors
 }
 
+func (f *firehoseIngest) Stop() {
+	close(f.done)
+}
+
 func (f *firehoseIngest) run() {
-	go func() {
-		for e := range f.es.Events {
+RunLoop:
+	for {
+		select {
+		case <-f.done:
+			break RunLoop
+		case e := <-f.es.Errors:
+			f.errors <- e
+		case e, ok := <-f.es.Events:
+			if !ok {
+				break RunLoop
+			}
 			switch e.Event() {
 			case "privmsg":
 				m := &Message{}
@@ -62,10 +78,7 @@ func (f *firehoseIngest) run() {
 				f.errors <- fmt.Errorf("Unknown event type: %v", e)
 			}
 		}
-	}()
-	go func() {
-		for e := range f.es.Errors {
-			f.errors <- e
-		}
-	}()
+	}
+	close(f.output)
+	close(f.errors)
 }

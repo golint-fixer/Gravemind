@@ -35,7 +35,7 @@ func (m *Message) String() string {
 	if m.IsAction {
 		buf.WriteString("/me ")
 	}
-	buf.WriteString(msg.Content.String())
+	buf.WriteString(m.Content.String())
 	return buf.String()
 }
 

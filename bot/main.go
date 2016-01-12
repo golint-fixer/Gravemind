@@ -8,6 +8,10 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
+	"net/http"
+	_ "net/http/pprof"
+	"os"
+	"os/signal"
 )
 
 type Config struct {
@@ -29,6 +33,11 @@ func init() {
 }
 
 func main() {
+	// Ayyy pprof!
+	go func() {
+		http.ListenAndServe(":9999", nil)
+	}()
+
 	// Create the ingest
 	ingest, err := NewFirehoseIngest(config.Username, config.Token)
 	if err != nil {
@@ -49,6 +58,15 @@ func main() {
 	if err != nil {
 		log.Fatal("NewBrain: ", err)
 	}
+
+	// Handle signals
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	go func() {
+		<-c
+		ingest.Stop()
+		signal.Stop(c) // In case of catastrophic failure, allow CTRL+C to work again
+	}()
 
 	// And... go
 	for err := range brain.Run() {
