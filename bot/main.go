@@ -1,9 +1,5 @@
 package main
 
-// TODO:
-// - Remove oauth token!!! Put it somewhere secret.
-// - Actually set Message.IsAction and strip \x01ACTION
-
 import (
 	"encoding/json"
 	"io/ioutil"

@@ -1,3 +1,5 @@
 cd /var/tyrant-bot
-nohup ./bot > log 2>&1 &
-echo $! > pid
+nohup ./api > api.log 2>&1 &
+echo $! > api.pid
+nohup ./bot > bot.log 2>&1 &
+echo $! > bot.pid
