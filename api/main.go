@@ -59,7 +59,7 @@ func CORS(h http.Handler) http.Handler {
 func HSTS(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		headers := w.Header()
-		headers.Set("Strict-Transport-Security", "315360000; preload")
+		headers.Set("Strict-Transport-Security", "max-age=315360000; preload")
 		headers.Set("X-Frame-Options", "DENY")
 		headers.Set("X-Content-Type-Options", "nosniff")
 		headers.Set("X-XSS-Protection", "1; mode=block")
