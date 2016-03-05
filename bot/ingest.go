@@ -68,7 +68,7 @@ RunLoop:
 				if err == nil {
 					m.ParseTags()
 					m.ParseMessage()
-					if m.Login != config.Username {
+					if m.Login != config.OutgestName {
 						f.output <- m
 					}
 				} else {

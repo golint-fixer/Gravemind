@@ -155,7 +155,7 @@ func (b *brain) addUser(data map[string]*dynamodb.AttributeValue) error {
 func (b *brain) handleMessage(m *Message, errs chan error) {
 	b.RLock()
 	var wg sync.WaitGroup
-	bot := config.Username
+	bot := config.OutgestName
 	if b, ok := bots[m.Room]; ok {
 		bot = b
 	}

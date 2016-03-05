@@ -13,8 +13,10 @@ import (
 const testRoom = "#fugitest"
 
 type Config struct {
-	Username string `json:"username"`
-	Token    string `json:"token"`
+	IngestName   string `json:"ingest_name"`
+	IngestToken  string `json:"ingest_token"`
+	OutgestName  string `json:"outgest_name"`
+	OutgestToken string `json:"outgest_token"`
 }
 
 var config Config
@@ -37,7 +39,7 @@ func main() {
 	}()
 
 	// Create the ingest
-	ingest, err := NewFirehoseIngest(config.Username, config.Token)
+	ingest, err := NewFirehoseIngest(config.IngestName, config.IngestToken)
 	if err != nil {
 		log.Fatal("NewFirehoseIngest: ", err)
 	}
@@ -49,7 +51,7 @@ func main() {
 
 	// Create the outgest
 	outgest := NewOutgest()
-	outgest.Connect(config.Username, config.Token)
+	outgest.Connect(config.OutgestName, config.OutgestToken)
 
 	// Create the brain
 	brain, err := NewBrain(ingest.Messages(), outgest.Send)
