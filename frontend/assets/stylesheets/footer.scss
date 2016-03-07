@@ -1,0 +1,27 @@
+.footer {
+  .container {
+    margin: 0 auto;
+    padding: 20px 15px;
+    max-width: $max-content-width;
+    text-align: center;
+
+    span {
+      color: color($light alpha(30%));
+    }
+
+    a {
+      display: inline-block;
+      padding: 2px 5px;
+      font-size: 1em;
+
+      &, &:active, &:visited {
+        color: color($light alpha(60%));
+        text-decoration: none;
+      }
+
+      &:hover {
+        color: $light;
+      }
+    }
+  }
+}

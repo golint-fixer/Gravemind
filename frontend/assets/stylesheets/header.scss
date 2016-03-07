@@ -1,0 +1,39 @@
+.header {
+  .container {
+    display: flex;
+    justify-content: space-between;
+    margin: 0 auto;
+    padding: 20px 0;
+    max-width: $max-content-width;
+
+    .brand {
+      color: color($brand lightness(+10%));
+      font-size: 1.75em;
+      text-decoration: none;
+
+      span {
+        margin-left: 10px;
+        vertical-align: middle;
+      }
+    }
+
+    .nav {
+      margin-top: 6px;
+
+      a {
+        display: inline-block;
+        padding: 3px 8px;
+        font-size: 1.125em;
+        text-decoration: none;
+
+        &, &:active, &:visited {
+          color: color($light alpha(60%));
+        }
+
+        &:hover {
+          color: $light;
+        }
+      }
+    }
+  }
+}

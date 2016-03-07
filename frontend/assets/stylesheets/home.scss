@@ -1,0 +1,56 @@
+
+.home {
+  display: flex;
+  color: $light;
+  background: url('../images/gravemind.png') no-repeat 50% 20%;
+  background-size: cover;
+  min-height: 500px;
+
+  .overlay {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.7);
+
+    .container {
+      text-align: center;
+      margin: 0 auto;
+      max-width: $max-content-width;
+
+      .title {
+        font-size: 2.4em;
+      }
+
+      .row {
+        display: flex;
+        align-items: stretch;
+        min-height: 360px;
+
+        .developer {
+          flex-grow: 1;
+          flex-basis: 0;
+        }
+
+        .broadcaster {
+          flex-grow: 1;
+          flex-basis: 0;
+        }
+
+        .spacer {
+          width: 0;
+          border: 2px solid $light;
+          margin: 0 10px;
+        }
+
+        .button {
+          display: inline-block;
+          color: $light;
+          font-size: 1.6em;
+          border: 2px solid $light;
+          text-decoration: none;
+          padding: 12px;
+          margin: 10px;
+          border-radius: 20px;
+        }
+      }
+    }
+  }
+}

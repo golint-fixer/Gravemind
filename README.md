@@ -1,14 +1,12 @@
-# TyrantBot
+# Gravemind
 
-An ambitious project to provide a free bot to every Twitch channel
+Controlling the flood of Twitch chat
 
 ## Architecture
- - A Meteor app for the web frontend
+ - React for the web frontend
+ - A go app for the API
+ - A go app to receive, parse, handle and send messages to & from TMI
  - DynamoDB as the primary data store
- - A go app to receive incoming messages from TMI
- - A go app to parse incoming messages & handle them appropriately
- - A go app to send outbound messages to TMI
- - RabbitMQ to transfer messages between the go apps
 
 ## Roadmap
  - Set up continuous integration & deployment via Travis CI and AWS CodeDeploy
@@ -23,4 +21,3 @@ An ambitious project to provide a free bot to every Twitch channel
  - Add scripting
  - Implement proper auto-scaling
  - Allow renaming the bot for a given channel
- - Accept donations?
