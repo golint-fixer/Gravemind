@@ -2,7 +2,7 @@ language: go
 
 before_script:
 #  - go get github.com/kisielk/errcheck
-  - go get github.com/golang/lint/golint
+  - go get golang.org/x/lint/golint
 
 script:
   - go vet ./api/...
